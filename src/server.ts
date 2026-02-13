@@ -1,11 +1,12 @@
 import Fastify from 'fastify';
 import { z } from 'zod';
 import { env } from './config/env.js';
-import { AbapRagService, createVectorStore } from './service.js';
+import { createInitializedService } from './service.js';
 
 const app = Fastify({ logger: true });
-const service = new AbapRagService(createVectorStore());
-await service.init();
+const { service, backend, warning } = await createInitializedService();
+if (warning) app.log.warn(warning);
+app.log.info({ backend }, 'ABAP RAG vector backend initialized');
 
 app.post('/api/ingest', async (req, reply) => {
   const schema = z.object({

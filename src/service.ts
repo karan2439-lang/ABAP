@@ -7,11 +7,33 @@ import { ingestFromDisk } from './ingest/ingestor.js';
 import { embedTexts } from './generation/openai-client.js';
 import { generateAbap } from './generation/generator.js';
 import type { RetrieveFilters } from './types/index.js';
+import { isConnectionRefused } from './utils/errors.js';
 
 export function createVectorStore(): VectorStore {
   if (env.VECTOR_BACKEND === 'memory') return new InMemoryVectorStore();
   const pool = new Pool({ connectionString: env.DATABASE_URL });
   return new PgVectorStore(pool);
+}
+
+export async function createInitializedService(): Promise<{ service: AbapRagService; backend: 'pgvector' | 'memory'; warning?: string }> {
+  const preferred = env.VECTOR_BACKEND;
+  const service = new AbapRagService(createVectorStore());
+
+  try {
+    await service.init();
+    return { service, backend: preferred };
+  } catch (error) {
+    if (preferred === 'pgvector' && isConnectionRefused(error)) {
+      const fallback = new AbapRagService(new InMemoryVectorStore());
+      await fallback.init();
+      return {
+        service: fallback,
+        backend: 'memory',
+        warning: 'Postgres is unreachable (ECONNREFUSED). Falling back to in-memory vector store. Start docker compose or set VECTOR_BACKEND=memory explicitly.'
+      };
+    }
+    throw error;
+  }
 }
 
 export class AbapRagService {

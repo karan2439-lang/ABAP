@@ -77,6 +77,25 @@ Notes:
 - If the project is nested after unzip, run `cd` until `dir` shows `package.json`.
 - If OneDrive/zip extraction moved files, re-extract and open CMD directly in the project root.
 
+
+## Postgres `ECONNREFUSED` on startup
+
+If you see a stack trace from `pg-pool` with `ECONNREFUSED` on port `5432`, Postgres is not running/reachable.
+
+You now have two options:
+
+1. Start Postgres + pgvector:
+
+```cmd
+docker compose up -d
+```
+
+2. Or run without Postgres:
+
+- set `VECTOR_BACKEND=memory` in `.env`, then restart `npm run dev`
+
+Additionally, the server now auto-falls back to in-memory mode when `VECTOR_BACKEND=pgvector` and Postgres is unreachable, and logs a warning so you can continue testing APIs.
+
 ## Environment
 
 See `.env.example`.
