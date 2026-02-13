@@ -48,6 +48,35 @@ npm exec tsc -p tsconfig.json
 npm exec vitest run
 ```
 
+
+## Windows CMD troubleshooting for `npm ERR! ENOENT ... package.json`
+
+If you see an error like:
+
+```text
+npm ERR! enoent Could not read package.json
+...\...\package.json
+```
+
+you are running npm in the wrong folder (or using a path that literally contains `...`).
+
+Use this exact CMD flow:
+
+```cmd
+cd /d C:\Users\karchaturvedi\Downloads\ABAP-codex-build-abap-contextual-retrieval-engine\ABAP-codex-build-abap-contextual-retrieval-engine
+
+dir package.json
+npm install
+npm run build
+npm test
+```
+
+Notes:
+- `dir package.json` must show the file before running npm commands.
+- Do **not** use `...` in paths; that is only shorthand in messages, not a real folder name.
+- If the project is nested after unzip, run `cd` until `dir` shows `package.json`.
+- If OneDrive/zip extraction moved files, re-extract and open CMD directly in the project root.
+
 ## Environment
 
 See `.env.example`.
