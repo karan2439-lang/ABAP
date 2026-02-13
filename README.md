@@ -25,6 +25,29 @@ npm run dev
 
 Service starts on `http://localhost:3000`.
 
+## Windows CMD quickstart (fix for "tsc/vitest not recognized")
+
+If you downloaded the repo and run commands directly in CMD, use the npm scripts below (they resolve local binaries in `node_modules/.bin`):
+
+```cmd
+npm install
+npm run build
+npm test
+```
+
+If you still see command-not-found, install dependencies again including devDependencies:
+
+```cmd
+npm install --include=dev
+```
+
+You can also run tools explicitly through npm without relying on PATH:
+
+```cmd
+npm exec tsc -p tsconfig.json
+npm exec vitest run
+```
+
 ## Environment
 
 See `.env.example`.
